@@ -1,3 +1,6 @@
+# FORK
+This fork use $MenuTitle instead of $Title as text for the link
+
 # SilverStripe Sitemap Module 0.1
 
 Maintainer Contacts
