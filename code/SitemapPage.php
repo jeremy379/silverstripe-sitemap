@@ -91,7 +91,7 @@ class SitemapPage extends Page {
 	public function getRootPages() {
 		switch($this->PagesToDisplay) {
 			case 'ChildrenOf':
-				return DataObject::getComponents(
+				return DataObject::get(
 					'SiteTree',
 					sprintf('"ParentID" = %d AND "ShowInMenus" = 1', $this->ParentPageID)
 				);
@@ -99,7 +99,7 @@ class SitemapPage extends Page {
 				//return $this->PagesToShow($showInMenus);
 				return $this->PagesToShow();
 			default:
-				return DataObject::getComponents('SiteTree', '"ParentID" = 0 AND "ShowInMenus" = 1');
+				return DataObject::get('SiteTree', '"ParentID" = 0 AND "ShowInMenus" = 1');
 		}
 	}
 
