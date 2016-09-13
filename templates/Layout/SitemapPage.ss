@@ -5,11 +5,9 @@
 	
 	$Content
 	
-	<% cached 'sitemap_page', ID, List(Page).Max(LastEdited) %>
 		<% if Sitemap %>
 			<div id="Sitemap">$Sitemap</div>
 		<% end_if %>
-	<% end_cached %>
 	
 	$Form
 	$PageComments
