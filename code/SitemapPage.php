@@ -99,7 +99,7 @@ class SitemapPage extends Page {
 				//return $this->PagesToShow($showInMenus);
 				return $this->PagesToShow();
 			default:
-				return DataObject::get('"ParentID" = 0 AND "ShowInMenus" = 1');
+				return DataObject::get('SiteTree', '"ParentID" = 0 AND "ShowInMenus" = 1');
 		}
 	}
 
