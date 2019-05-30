@@ -61,6 +61,7 @@ class SitemapPage extends Page {
 	public function getSitemap(ArrayList $set = null) {
 		if(!$set) $set = $this->getRootPages();
 
+
 		if($set && count($set)) {
 			$sitemap = '<ul>';
 
@@ -84,6 +85,44 @@ class SitemapPage extends Page {
 			return $sitemap .'</ul>';
 		}
 	}
+
+	public function getSitemapXml($lang, ArrayList $set = null, $priority = 1, $segments = array()) {
+	    i18n::set_locale($lang);
+
+        if(!$set) $set = $this->getRootPages();
+
+        if($set && count($set)) {
+            $sitemap ='';
+            foreach($set as $page) {
+                if($page->ShowInMenus && $page->ID != $this->ID && $page->canView()) {
+
+                    $childrenSegments = $segments;
+
+                    if(strpos($page->XML_val('Link'), 'http://') !== 0 && strpos($page->XML_val('Link'), 'https://') !== 0) {
+
+                        $childrenSegments[] = $page->XML_val('URLSegment_' . $lang);
+                        $sitemap .= '
+    <url>
+        <loc>https://wwf.be/'.substr($lang, 0,2).'/' . implode('/',$childrenSegments) . '</loc>
+        <changefreq>daily</changefreq>
+        <priority>' . $priority . '</priority>
+    </url>
+                          ';
+
+                    }
+
+                    if($children = $page->Children()) {
+                        $priority -= 0.1;
+                        $sitemap .= $this->getSitemapXml($lang, $children, $priority, $childrenSegments);
+                        $priority += 0.1;
+                    }
+                }
+            }
+
+            return $sitemap;
+
+        }
+    }
 
 	/**
 	 * @return DataObjectSet
@@ -135,4 +174,26 @@ class SitemapPage extends Page {
  * @package silverstripe-sitemap
  */
 class SitemapPage_Controller extends Page_Controller {
+
+    private static $allowed_actions = array(
+        'index',
+        'sitemapXml',
+    );
+
+    public function sitemapXml() {
+        $sitemap = new SitemapPage;
+
+$sitemapHead =
+'<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+        $sitemapFoot = '
+</urlset>
+        ';
+        $a = file_put_contents('../sitemap-fr.xml', $sitemapHead . $sitemap->getSitemapXml('fr_BE') . $sitemapFoot);
+        $b = file_put_contents('../sitemap-nl.xml', $sitemapHead . $sitemap->getSitemapXml('nl_BE') . $sitemapFoot);
+
+        var_dump($a,$b);
+
+    }
 }
