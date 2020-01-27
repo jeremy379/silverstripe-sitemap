@@ -86,42 +86,62 @@ class SitemapPage extends Page {
 		}
 	}
 
-	public function getSitemapXml($lang, ArrayList $set = null, $priority = 1, $segments = array()) {
+	public function getSitemapXml($lang) {
+
+		$sitemap = '';
+
+		$sitemap .= $this->getXmlForWebsitePage($lang);
+
+		$sitemap .= $this->getXmlForCustomPage($lang);
+
+		return $sitemap;
+
+    }
+
+    protected function getXmlForWebsitePage($lang, ArrayList $set = null, $priority = 1, $segments = array())
+    {
 	    i18n::set_locale($lang);
 
-        if(!$set) $set = $this->getRootPages();
+	    if(!$set) $set = $this->getRootPages();
 
-        if($set && count($set)) {
-            $sitemap ='';
-            foreach($set as $page) {
-                if($page->ShowInMenus && $page->ID != $this->ID && $page->canView()) {
+	    if($set && count($set)) {
+		    $sitemap ='';
+		    foreach($set as $page) {
+			    if($page->ShowInMenus && $page->ID != $this->ID && $page->canView()) {
 
-                    $childrenSegments = $segments;
+				    $childrenSegments = $segments;
 
-                    if(strpos($page->XML_val('Link'), 'http://') !== 0 && strpos($page->XML_val('Link'), 'https://') !== 0) {
+				    if(strpos($page->XML_val('Link'), 'http://') !== 0 && strpos($page->XML_val('Link'), 'https://') !== 0) {
 
-                        $childrenSegments[] = $page->XML_val('URLSegment_' . $lang);
-                        $sitemap .= '
+					    $childrenSegments[] = $page->XML_val('URLSegment_' . $lang);
+					    $sitemap .= '
     <url>
-        <loc>https://wwf.be/'.substr($lang, 0,2).'/' . implode('/',$childrenSegments) . '</loc>
+        <loc>https://wwf.be/'.substr($lang, 0,2).'/' . implode('/',$childrenSegments) . '/</loc>
         <changefreq>daily</changefreq>
         <priority>' . $priority . '</priority>
     </url>
                           ';
 
-                    }
+				    }
 
-                    if($children = $page->Children()) {
-                        $priority -= 0.1;
-                        $sitemap .= $this->getSitemapXml($lang, $children, $priority, $childrenSegments);
-                        $priority += 0.1;
-                    }
-                }
-            }
+				    if($children = $page->Children()) {
+					    $priority -= 0.1;
+					    $sitemap .= $this->getXmlForWebsitePage($lang, $children, $priority, $childrenSegments);
+					    $priority += 0.1;
+				    }
+			    }
+		    }
 
-            return $sitemap;
+		    return $sitemap;
 
-        }
+	    }
+    }
+
+    protected function getXmlForCustomPage($lang)
+    {
+	   //TODO are custom page here.
+
+	    return '';
     }
 
 	/**
